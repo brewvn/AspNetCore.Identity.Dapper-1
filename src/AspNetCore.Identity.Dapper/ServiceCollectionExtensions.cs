@@ -9,21 +9,19 @@ namespace AspNetCore.Identity.Dapper
 {
 	public static class ServiceCollectionExtensions
 	{
-		public static IdentityBuilder AddDapperStores<TDbConnection>(this IdentityBuilder builder) where TDbConnection : IDbConnection
+		public static IdentityBuilder AddDapperStores(this IdentityBuilder builder)
 		{
-			AddStores(builder.Services, builder.UserType, builder.RoleType, typeof(TDbConnection));
+			AddStores(builder.Services, builder.UserType, builder.RoleType);
 			return builder;
 		}
 
-		private static void AddStores(IServiceCollection services, Type userType, Type roleType, Type connection)
+		private static void AddStores(IServiceCollection services, Type userType, Type roleType)
 		{
 			var identityUserType = FindGenericBaseType(userType, typeof(IdentityUser<>));
 			if (identityUserType == null)
 			{
 				throw new InvalidOperationException($"{nameof(userType)} is not a IdentityUser.");
 			}
-
-			var keyType = identityUserType.GenericTypeArguments[0];
 
 			if (roleType != null)
 			{
@@ -35,28 +33,13 @@ namespace AspNetCore.Identity.Dapper
 
 				Type userStoreType = null;
 				Type roleStoreType = null;
-				var connectionType = FindGenericBaseType(connection, typeof(IDbConnection));
-				if (connectionType == null)
-				{
-					userStoreType = typeof(UserStore<>).MakeGenericType(userType);
-					//roleStoreType = typeof(RoleStore<,,>).MakeGenericType(roleType, connection, keyType);
-				}
-				else
-				{
-					//userStoreType = typeof(UserStore<,,,,,,,,>).MakeGenericType(userType, roleType, connection,
-					//	connectionType.GenericTypeArguments[2],
-					//	connectionType.GenericTypeArguments[3],
-					//	connectionType.GenericTypeArguments[4],
-					//	connectionType.GenericTypeArguments[5],
-					//	connectionType.GenericTypeArguments[7],
-					//	connectionType.GenericTypeArguments[6]);
-					//roleStoreType = typeof(RoleStore<,,,,>).MakeGenericType(roleType, connection,
-					//	connectionType.GenericTypeArguments[2],
-					//	connectionType.GenericTypeArguments[4],
-					//	connectionType.GenericTypeArguments[6]);
-				}
+
+				//userStoreType = typeof(UserStore<>).MakeGenericType(userType);
+				//roleStoreType = typeof(UserStore<>).MakeGenericType(userType);
+
+				services.TryAddScoped<IConnectionProvider, SqlServerConnectionProvider>();
 				services.TryAddScoped(typeof(IUserStore<>).MakeGenericType(userType), userStoreType);
-				services.TryAddScoped(typeof(IRoleStore<>).MakeGenericType(roleType), roleStoreType);
+				//services.TryAddScoped(typeof(IRoleStore<>).MakeGenericType(roleType), roleStoreType);
 			}
 			else
 			{   // No Roles
