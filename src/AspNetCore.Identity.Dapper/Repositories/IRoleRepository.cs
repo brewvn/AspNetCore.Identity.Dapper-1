@@ -15,8 +15,11 @@ namespace AspNetCore.Identity.Dapper.Repositories
 		where TRoleClaim : IdentityRoleClaim<TKey>
 	{
 		Task<TRole> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken);
-		Task AddClaimAsync<TRole, TKey>(TRole role, Claim claim, CancellationToken cancellationToken)
-			where TRole : IdentityRole<TKey>
-			where TKey : IEquatable<TKey>;
+		Task<bool> CreateAsync(TRole role, CancellationToken cancellationToken);
+		Task<bool> DeleteAsync(TKey id, CancellationToken cancellationToken);
+		Task<TRole> FindByIdAsync(TKey key);
+		Task<TRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken);
+		Task<bool> UpdateAsync(TRole role, CancellationToken cancellationToken);
+		Task SetRoleNameAsync(TKey roleId, string roleName);
 	}
 }
