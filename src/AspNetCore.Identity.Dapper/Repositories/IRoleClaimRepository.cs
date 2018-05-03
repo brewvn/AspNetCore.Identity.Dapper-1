@@ -14,4 +14,22 @@ namespace AspNetCore.Identity.Dapper.Repositories
 		Task<IList<Claim>> GetClaimsAsync(TKey roleId);
 		Task RemoveClaimAsync(TKey id, Claim claim, CancellationToken cancellationToken);
 	}
+
+	public class RoleClaimRepository<TRoleCliam, TKey> : IRoleClaimRepository<TRoleCliam, TKey> where TKey : IEquatable<TKey> where TRoleCliam : IdentityRoleClaim<TKey>, new()
+	{
+		public Task AddClaimAsync(TKey roleId, Claim claim, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<IList<Claim>> GetClaimsAsync(TKey roleId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task RemoveClaimAsync(TKey id, Claim claim, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

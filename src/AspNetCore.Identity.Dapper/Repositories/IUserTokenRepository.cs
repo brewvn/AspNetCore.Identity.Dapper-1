@@ -13,4 +13,22 @@ namespace AspNetCore.Identity.Dapper.Repositories
 		Task<TUserToken> FindTokenAsync(TKey userId, string loginProvider, string name, CancellationToken cancellationToken);
 		Task RemoveUserTokenAsync(TKey userId);
 	}
+
+	public class UserTokenRepository<TUserToken, TKey> : IUserTokenRepository<TUserToken, TKey> where TKey : IEquatable<TKey> where TUserToken : IdentityUserToken<TKey>, new()
+	{
+		public Task AddUserTokenAsync(TUserToken token)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<TUserToken> FindTokenAsync(TKey userId, string loginProvider, string name, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task RemoveUserTokenAsync(TKey userId)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }
