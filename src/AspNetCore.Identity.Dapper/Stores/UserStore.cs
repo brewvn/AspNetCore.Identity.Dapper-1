@@ -82,7 +82,7 @@ namespace AspNetCore.Identity.Dapper
 					userClaim.ClaimValue = claim.Value;
 					results.Add(userClaim);
 				}
-				await conn.ExecuteTransactionAsync(_sqlConfiguration.AddUserClaims, results, rows => rows == results.Count);
+				await conn.ExecuteAsync(_sqlConfiguration.AddUserClaims, results);
 			}
 		}
 
@@ -103,7 +103,7 @@ namespace AspNetCore.Identity.Dapper
 				UserId = user.Id,
 				login.LoginProvider,
 				login.ProviderKey,
-				Name = login.ProviderDisplayName
+				login.ProviderDisplayName
 			};
 			using (var conn = _connectionProvider.Create())
 			{
@@ -174,7 +174,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TUser>(conn, _sqlConfiguration.FindUserByNormalizedEmail, new { NormalizedEmail = normalizedEmail });
+				return await SqlMapper.QueryFirstOrDefaultAsync<TUser>(conn, _sqlConfiguration.FindUserByNormalizedEmail, new { NormalizedEmail = normalizedEmail });
 			}
 		}
 
@@ -187,7 +187,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TUser>(conn, _sqlConfiguration.FindUserById, new { Id = userId });
+				return await SqlMapper.QueryFirstOrDefaultAsync<TUser>(conn, _sqlConfiguration.FindUserById, new { Id = userId });
 			}
 		}
 
@@ -200,7 +200,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TUser>(conn, _sqlConfiguration.FindUserByNormalizedName, new { NormalizedName = normalizedUserName });
+				return await SqlMapper.QueryFirstOrDefaultAsync<TUser>(conn, _sqlConfiguration.FindUserByNormalizedName, new { NormalizedName = normalizedUserName });
 			}
 		}
 
@@ -269,7 +269,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				var users = await SqlMapper.QueryAsync<TUser>(conn, _sqlConfiguration.FindUsersByRole, new { RoleName = normalizedRoleName });
+				var users = await SqlMapper.QueryAsync<TUser>(conn, _sqlConfiguration.FindUsersByRoleName, new { RoleName = normalizedRoleName });
 				return users.ToList();
 			}
 		}
@@ -286,7 +286,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				var counts = await SqlMapper.QueryFirstAsync<int>(conn, _sqlConfiguration.CountUserRolesByUserId, new { RoleName = normalizedRoleName, UserId = user.Id });
+				var counts = await SqlMapper.QueryFirstOrDefaultAsync<int>(conn, _sqlConfiguration.CountUserRolesByUserId, new { RoleName = normalizedRoleName, UserId = user.Id });
 				return counts > 0;
 			}
 		}
@@ -408,7 +408,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TRole>(conn, _sqlConfiguration.FindRoleByNormalizedRoleName);
+				return await SqlMapper.QueryFirstOrDefaultAsync<TRole>(conn, _sqlConfiguration.FindRoleByNormalizedName);
 			}
 		}
 
@@ -427,7 +427,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TUserToken>(conn, _sqlConfiguration.FindUserTokenByUserIdAndLoginProviderAndName, new
+				return await SqlMapper.QueryFirstOrDefaultAsync<TUserToken>(conn, _sqlConfiguration.FindUserTokenByUserIdAndLoginProviderAndName, new
 				{
 					UserId = user.Id,
 					LoginProvider = loginProvider,
@@ -445,7 +445,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TUser>(conn, _sqlConfiguration.FindUserById, new { Id = userId });
+				return await SqlMapper.QueryFirstOrDefaultAsync<TUser>(conn, _sqlConfiguration.FindUserById, new { Id = userId });
 			}
 		}
 
@@ -464,7 +464,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TUserLogin>(conn, _sqlConfiguration.FindUserLoginByUserIdAndLoginProviderAndProviderKey, new
+				return await SqlMapper.QueryFirstOrDefaultAsync<TUserLogin>(conn, _sqlConfiguration.FindUserLoginByUserIdAndLoginProviderAndProviderKey, new
 				{
 					UserId = userId,
 					LoginProvider = loginProvider,
@@ -485,7 +485,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TUserLogin>(conn, _sqlConfiguration.FindUserLoginByLoginProviderAndProviderKey, new
+				return await SqlMapper.QueryFirstOrDefaultAsync<TUserLogin>(conn, _sqlConfiguration.FindUserLoginByLoginProviderAndProviderKey, new
 				{
 					LoginProvider = loginProvider,
 					ProviderKey = providerKey
@@ -505,7 +505,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TUserRole>(conn, _sqlConfiguration.FindUserRoleByUserIdAndRoleId, new
+				return await SqlMapper.QueryFirstOrDefaultAsync<TUserRole>(conn, _sqlConfiguration.FindUserRoleByUserIdAndRoleId, new
 				{
 					UserId = userId,
 					RoleId = roleId

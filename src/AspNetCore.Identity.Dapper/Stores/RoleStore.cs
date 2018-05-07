@@ -11,6 +11,31 @@ using AspNetCore.Identity.Dapper.Repositories;
 
 namespace AspNetCore.Identity.Dapper
 {
+	public class RoleStore : RoleStore<IdentityRole>
+	{
+		public RoleStore(IConnectionProvider connectionProvider, SqlConfiguration sqlConfiguration) : base(connectionProvider, sqlConfiguration)
+		{
+		}
+	}
+
+	public class RoleStore<TRole> : RoleStore<TRole, string>
+		where TRole : IdentityRole<string>
+	{
+		public RoleStore(IConnectionProvider connectionProvider, SqlConfiguration sqlConfiguration) : base(connectionProvider, sqlConfiguration)
+		{
+		}
+	}
+
+	public class RoleStore<TRole, TKey> : RoleStore<TRole, TKey, IdentityUserRole<TKey>, IdentityRoleClaim<TKey>>
+		where TRole : IdentityRole<TKey>
+		where TKey : IEquatable<TKey>
+	{
+		public RoleStore(IConnectionProvider connectionProvider, SqlConfiguration sqlConfiguration) : base(connectionProvider, sqlConfiguration)
+		{
+		}
+	}
+
+
 	public class RoleStore<TRole, TKey, TUserRole, TRoleClaim> :
 	   IQueryableRoleStore<TRole>,
 	   IRoleClaimStore<TRole>
@@ -90,7 +115,7 @@ namespace AspNetCore.Identity.Dapper
 
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TRole>(conn, _sqlConfiguration.FindRoleById, new { Id = roleId });
+				return await SqlMapper.QueryFirstOrDefaultAsync<TRole>(conn, _sqlConfiguration.FindRoleById, new { Id = roleId });
 			}
 		}
 
@@ -102,7 +127,7 @@ namespace AspNetCore.Identity.Dapper
 				throw new ArgumentNullException(nameof(normalizedRoleName));
 			using (var conn = _connectionProvider.Create())
 			{
-				return await SqlMapper.QueryFirstAsync<TRole>(conn, _sqlConfiguration.FindRoleByNormalizedName, new { NormalizedRoleName = normalizedRoleName });
+				return await SqlMapper.QueryFirstOrDefaultAsync<TRole>(conn, _sqlConfiguration.FindRoleByNormalizedName, new { NormalizedName = normalizedRoleName });
 			}
 		}
 

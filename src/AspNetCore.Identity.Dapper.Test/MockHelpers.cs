@@ -31,5 +31,14 @@ namespace AspNetCore.Identity.Dapper.Test
 				.Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
 			return userManager;
 		}
+
+		public static RoleManager<TRole> TestRoleManager<TRole>(IRoleStore<TRole> store = null) where TRole : class
+		{
+			store = store ?? new Mock<IRoleStore<TRole>>().Object;
+			var roles = new List<IRoleValidator<TRole>>();
+			roles.Add(new RoleValidator<TRole>());
+			return new RoleManager<TRole>(store, roles, new UpperInvariantLookupNormalizer(),
+				new IdentityErrorDescriber(), null);
+		}
 	}
 }

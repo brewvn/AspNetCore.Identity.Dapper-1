@@ -10,9 +10,8 @@ namespace AspNetCore.Identity.Dapper
 
 		#region User
 
-		public virtual string AddUserClaims { get; } = "INSERT";
-		public string AddLogin { get; } = "INSERT";
-		public string FindRoleByNormalizedRoleName { get; }
+		public virtual string AddUserClaims { get; }
+		public string AddLogin { get; }
 		public string AddUserRole { get; internal set; }
 		public string DeleteUserById { get; internal set; }
 		public string CreateUser { get; }
@@ -23,7 +22,7 @@ namespace AspNetCore.Identity.Dapper
 		public string FindUserLoginsByUserId { get; }
 		public string FindUserRolesByUserId { get; }
 		public string FindUsersByClaim { get; }
-		public string FindUsersByRole { get; }
+		public string FindUsersByRoleName { get; }
 		public string CountUserRolesByUserId { get; }
 		public string RemoveUserClaimsByUserIdAndClaims { get; }
 		public string RemoveUserRolesByUserIdAndNormalizedRoleName { get; }
@@ -65,8 +64,43 @@ namespace AspNetCore.Identity.Dapper
 		public SqlConfiguration(string schema)
 		{
 			Schema = schema;
+			var schemaName = $"[{Schema}].[dbo]";
 
-			CreateUser = $"INSERT INTO [{Schema}].[dbo].[{UserTable}]([Id],[AccessFailedCount],[ConcurrencyStamp],[Email],[EmailConfirmed],[LockoutEnabled],[LockoutEnd],[NormalizedEmail],[NormalizedUserName],[PasswordHash],[PhoneNumber],[PhoneNumberConfirmed],[SecurityStamp],[TwoFactorEnabled],[UserName])VALUES (@Id,@AccessFailedCount,@ConcurrencyStamp,@Email,@EmailConfirmed,@LockoutEnabled,@LockoutEnd,@NormalizedEmail,@NormalizedUserName,@PasswordHash,@PhoneNumber,@PhoneNumberConfirmed,@SecurityStamp,@TwoFactorEnabled,@UserName)";
+			AddUserClaims = $"INSERT INTO {schemaName}.[{UserClaimsTable}]([ClaimType],[ClaimValue],[UserId])VALUES(@ClaimType,@ClaimValue,@UserId)";
+			AddUserRole = $"INSET INTO {schemaName}.[{UserRolesTable}] ([UserId],[RoleId]) VALUES (@UserId,@RoleId)";
+			FindUserByNormalizedEmail = $"SELECT * FROM {schemaName}.[{UserTable}] WHERE [NormalizedEmail] = @NormalizedEmail";
+			AddLogin = $"INSERT INTO {schemaName}.[{UserLoginsTable}] ([LoginProvider],[ProviderKey],[ProviderDisplayName],[UserId]) VALUES (@LoginProvider,@ProviderKey,@ProviderDisplayName,@UserId)";
+			FindUserLoginByLoginProviderAndProviderKey = $"SELECT * FROM {schemaName}.[{UserLoginsTable}] WHERE LoginProvider=@LoginProvider AND ProviderKey=@ProviderKey";
+			DeleteUserById = $"DELETE FROM {schemaName}.[{UserRolesTable}] WHERE Id=@Id";
+			CreateUser = $"INSERT INTO {schemaName}.[{UserTable}]([Id],[AccessFailedCount],[ConcurrencyStamp],[Email],[EmailConfirmed],[LockoutEnabled],[LockoutEnd],[NormalizedEmail],[NormalizedUserName],[PasswordHash],[PhoneNumber],[PhoneNumberConfirmed],[SecurityStamp],[TwoFactorEnabled],[UserName])VALUES (@Id,@AccessFailedCount,@ConcurrencyStamp,@Email,@EmailConfirmed,@LockoutEnabled,@LockoutEnd,@NormalizedEmail,@NormalizedUserName,@PasswordHash,@PhoneNumber,@PhoneNumberConfirmed,@SecurityStamp,@TwoFactorEnabled,@UserName)";
+			FindUserById = $"SELECT * FROM {schemaName}.[{RoleTable}] WHERE Id=@Id";
+			FindUserByNormalizedName = $"SELECT * FROM {schemaName}.[{UserTable}] WHERE [NormalizedName] = @NormalizedName";
+			FindUserClaimsByUserId = $"SELECT * FROM {schemaName}.[{UserClaimsTable}] WHERE UserId=@UserId";
+			UpdateUser = $"UPDATE {schemaName}.[{UserTable}] SET [AccessFailedCount]=@AccessFailedCount,[ConcurrencyStamp]=@ConcurrencyStamp,[Email]=@Email,[EmailConfirmed]=@EmailConfirmed,[LockoutEnabled]=@LockoutEnabled,[LockoutEnd]=@LockoutEnd,[NormalizedEmail]=@NormalizedEmail,[NormalizedUserName]=@NormalizedUserName,[PasswordHash]=@PasswordHash,[PhoneNumber]=@PhoneNumber,[PhoneNumberConfirmed]=@PhoneNumberConfirmed,[SecurityStamp]=@SecurityStamp,[TwoFactorEnabled]=@TwoFactorEnabled,[UserName]=@UserName WHERE Id = @Id";
+			FindUserLoginsByUserId = $"SELECT * FROM {schemaName}.[{UserLoginsTable}] WHERE UserId=@UserId";
+			FindUserRolesByUserId = $"SELECT * FROM {schemaName}.[{UserRolesTable}] WHERE UserId=@UserId";
+			FindUsersByClaim = $"SELECT {schemaName}.[{UserTable}].* FROM {schemaName}.[{UserTable}], {schemaName}.[{UserClaimsTable}] WHERE {schemaName}.[{UserClaimsTable}].[ClaimType]=@ClaimType AND {schemaName}.[{UserClaimsTable}].[ClaimValue]=@ClaimValue";
+			FindUsersByRoleName= $"SELECT {schemaName}.[{UserTable}].* FROM {schemaName}.[{UserTable}], {schemaName}.[{UserRolesTable}], {schemaName}.[{RoleTable}] WHERE {schemaName}.[{RoleTable}].NormalizedName=@NormalizedName";
+			CountUserRolesByUserId = $"SELECT COUNT(*) FROM {schemaName}.[{UserRolesTable}] WHERE UserId=@UserId";
+			RemoveUserClaimsByUserIdAndClaims = $"DELETE FROM {schemaName}.[UserClaimsTable] WHERE UserId=@UserId AND [ClaimType]=@ClaimType AND [ClaimValue]=@ClaimValue";
+			RemoveUserLogins = $"DELETE FROM {schemaName}.[{UserLoginsTable}] WHERE UserId=@UserId AND LoginProvider=@LoginProvider AND ProviderKey=@ProviderKey";
+			ReplaceUserClaim = $"UPDATE {schemaName}.[{UserClaimsTable}] SET [ClaimType]=@ClaimType, [ClaimValue]=@ClaimValue WHERE UserId=@UserId AND [ClaimType]=@ClaimType AND [ClaimValue]=@ClaimValue";
+			AddUserToken = $"INSERT INTO {schemaName}.[{UserTokensTable}] ([UserId],[LoginProvider],[Name],[Value]) VALUES (@UserId,@LoginProvider,@Name,@Value)";
+			FindUserTokenByUserIdAndLoginProviderAndName = $"SELECT * FROM {schemaName}.[{UserTokensTable}] WHERE UserId=@UserId AND LoginProvider=@LoginProvider AND Name=@Name";
+			FindUserLoginByUserIdAndLoginProviderAndProviderKey = $"SELECT * FROM {schemaName}.[{UserLoginsTable}] WHERE UserId=@UserId AND LoginProvider=@LoginProvider AND ProviderKey=@ProviderKey";
+			FindUserRoleByUserIdAndRoleId = $"SELECT * FROM {schemaName}.[{UserRolesTable}] WHERE UserId=@UserId AND RoleId=@RoleId";
+			RemoveUserTokenById = $"DELETE FROM {schemaName}.[{UserTokensTable}] WHERE Id=@Id";
+
+			CreateRole = $"INSERT INTO {schemaName}.[{RoleTable}] ([Id],[ConcurrencyStamp],[Name],[NormalizedName]) VALUES (@Id,@ConcurrencyStamp,@Name,@NormalizedName)";
+			AddRoleClaim = $"INSERT INTO {schemaName}.[{RoleClaimsTable}]([ClaimType],[ClaimValue],[RoleId])VALUES(@ClaimType,@ClaimValue,@RoleId)";
+			DeleteRoleById = $"DELETE FROM {schemaName}.[{RoleTable}] WHERE Id=@Id";
+			FindRoleById = $"SELECT * FROM {schemaName}.[{RoleTable}] WHERE Id=@Id";
+			FindRoleByNormalizedName = $"SELECT * FROM {schemaName}.[{RoleTable}] WHERE NormalizedName=@NormalizedName";
+			FindRoleClaimsByRoleId = $"SELECT * FROM {schemaName}.[{RoleClaimsTable}] WHERE RoleId=@RoleId";
+			RemoveRoleClaimsByRoleIdAndClaim = $"DELETE FROM {schemaName}.[{RoleClaimsTable}] WHERE RoleId=@RoleId AND [ClaimType]=@ClaimType AND [ClaimValue]=@ClaimValue";
+			SetNormalizedRoleNameById = $"UPDATE {schemaName}.[{RoleTable}] SET NormalizedName=@NormalizedName WHERE Id=@Id";
+			SetRoleNameById = $"UPDATE {schemaName}.[{RoleTable}] SET Name=@Name WHERE Id=@Id";
+			UpdateRole = $"UPDATE {schemaName}.[{RoleTable}] SET ConcurrencyStamp=@ConcurrencyStamp,Name=@Name,NormalizedName=@NormalizedName WHERE Id=@Id";
 		}
 	}
 }
