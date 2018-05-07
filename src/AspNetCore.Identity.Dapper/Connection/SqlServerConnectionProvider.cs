@@ -10,16 +10,14 @@ namespace AspNetCore.Identity.Dapper
 {
 	public class SqlServerConnectionProvider : IConnectionProvider
 	{
-		private readonly IConfiguration _configuration;
-
-		public SqlServerConnectionProvider(IConfiguration configuration)
-		{
-			_configuration = configuration;
-		}
-
 		public DbConnection Create()
 		{
-			return new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+			var conn = SqlClientFactory.Instance.CreateConnection();
+			if (conn.State != System.Data.ConnectionState.Open)
+			{
+				conn.Open();
+			}
+			return conn;
 		}
 	}
 }

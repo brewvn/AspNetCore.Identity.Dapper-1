@@ -20,48 +20,16 @@ namespace AspNetCore.Identity.Dapper
 			{
 				throw new InvalidOperationException($"{nameof(userType)} is not a IdentityUser.");
 			}
+
+			builder.Services.AddSingleton(new SqlConfiguration(""));
 			var keyType = identityUserType.GenericTypeArguments[0];
 			var userClaimType = typeof(IdentityUserClaim<>).MakeGenericType(keyType);
 			var userRoleType = typeof(IdentityUserRole<>).MakeGenericType(keyType);
 			var userLoginType = typeof(IdentityUserLogin<>).MakeGenericType(keyType);
 			var userTokenType = typeof(IdentityUserToken<>).MakeGenericType(keyType);
 			var roleClaimType = typeof(IdentityRoleClaim<>).MakeGenericType(keyType);
-
-			AddRepository(builder.Services, roleClaimType, keyType, userClaimType, userLoginType, userType, userRoleType, roleType, userTokenType);
 			AddStores(builder.Services, builder.UserType, builder.RoleType, keyType, userClaimType, userRoleType, userLoginType, userTokenType, roleClaimType);
 			return builder;
-		}
-
-		private static void AddRepository(IServiceCollection services, Type roleClaimType, Type keyType,
-			Type userClaimType, Type userLoginType, Type userType, Type userRoleType, Type roleType, Type userTokenType)
-		{
-			var iroleClaimRepositoryType = typeof(IRoleClaimRepository<,>).MakeGenericType(roleClaimType, keyType);
-			var roleClaimRepositoryType = typeof(RoleClaimRepository<,>).MakeGenericType(roleClaimType, keyType);
-			services.AddScoped(iroleClaimRepositoryType, roleClaimRepositoryType);
-
-			var iroleRepository = typeof(IRoleRepository<,,,>).MakeGenericType(roleType, keyType, userRoleType, roleClaimType);
-			var roleRepository = typeof(RoleRepository<,,,>).MakeGenericType(roleType, keyType, userRoleType, roleClaimType);
-			services.AddScoped(iroleRepository, roleRepository);
-
-			var iuserClaimRepository = typeof(IUserClaimRepository<,>).MakeGenericType(userClaimType, keyType);
-			var userClaimRepository = typeof(UserClaimRepository<,>).MakeGenericType(userClaimType, keyType);
-			services.AddScoped(iuserClaimRepository, userClaimRepository);
-
-			var iuserLoginRepository = typeof(IUserLoginRepository<,>).MakeGenericType(userLoginType, keyType);
-			var userLoginRepository = typeof(UserLoginRepository<,>).MakeGenericType(userLoginType, keyType);
-			services.AddScoped(iuserLoginRepository, userLoginRepository);
-
-			var iuserRepository = typeof(IUserRepository<,,,,,,>).MakeGenericType(userType, keyType, userRoleType, roleClaimType, userClaimType, userLoginType, roleType);
-			var userRepository = typeof(UserRepository<,,,,,,>).MakeGenericType(userType, keyType, userRoleType, roleClaimType, userClaimType, userLoginType, roleType);
-			services.AddScoped(iuserRepository, userRepository);
-
-			var iuserRoleRepository = typeof(IUserRoleRepository<,,>).MakeGenericType(userType, userRoleType, keyType);
-			var userRoleRepository = typeof(UserRoleRepository<,,>).MakeGenericType(userType, userRoleType, keyType);
-			services.AddScoped(iuserRoleRepository, userRoleRepository);
-
-			var iuserTokenRepository = typeof(IUserTokenRepository<,>).MakeGenericType(userTokenType, keyType);
-			var userTokenRepository = typeof(UserTokenRepository<,>).MakeGenericType(userTokenType, keyType);
-			services.AddScoped(iuserTokenRepository, userTokenRepository);
 		}
 
 		private static void AddStores(IServiceCollection services, Type userType, Type roleType, Type keyType,
@@ -90,7 +58,8 @@ namespace AspNetCore.Identity.Dapper
 				services.AddScoped(typeof(IRoleStore<>).MakeGenericType(roleType), roleStoreType);
 			}
 			else
-			{   // No Roles
+			{
+				// No Roles
 				//	Type userStoreType = null;
 				//	var connectionType = FindGenericBaseType(connection, typeof(connection));
 				//	if (connectionType == null)

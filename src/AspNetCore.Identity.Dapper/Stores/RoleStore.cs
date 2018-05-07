@@ -19,54 +19,13 @@ namespace AspNetCore.Identity.Dapper
 	   where TUserRole : IdentityUserRole<TKey>, new()
 	   where TRoleClaim : IdentityRoleClaim<TKey>, new()
 	{
-		private static string ParameterNotation = "@";
-		private static string SchemaName = "[dbo]";
-		private static string TableColumnStartNotation = "[";
-		private static string TableColumnEndNotation = "]";
-		private static string InsertRoleQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
-		private static string DeleteRoleQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [Id] = %ID%";
-		private static string UpdateRoleQuery = "UPDATE %SCHEMA%.%TABLENAME% %SETVALUES% WHERE [Id] = %ID%";
-		private static string SelectRoleByNameQuery = "SELECT * FROM %SCHEMA%.%TABLENAME% WHERE [Name] = %NAME%";
-		private static string SelectRoleByIdQuery = "SELECT * FROM %SCHEMA%.%TABLENAME% WHERE [Id] = %ID%";
-		private static string InsertUserQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% OUTPUT INSERTED.Id VALUES(%VALUES%)";
-		private static string DeleteUserQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [Id] = %ID%";
-		private static string UpdateUserQuery = "UPDATE %SCHEMA%.%TABLENAME% %SETVALUES% WHERE [Id] = %ID%";
-		private static string SelectUserByUserNameQuery = "SELECT %SCHEMA%.%USERTABLE%.*, %SCHEMA%.%USERROLETABLE%.* FROM %SCHEMA%.%USERTABLE% LEFT JOIN %SCHEMA%.%USERROLETABLE% ON %SCHEMA%.%USERROLETABLE%.[UserId] =  %SCHEMA%.%USERTABLE%.[Id] WHERE [UserName] = %USERNAME%";
-		private static string SelectUserByEmailQuery = "SELECT %SCHEMA%.%USERTABLE%.*, %SCHEMA%.%USERROLETABLE%.* FROM %SCHEMA%.%USERTABLE% LEFT JOIN %SCHEMA%.%USERROLETABLE% ON %SCHEMA%.%USERROLETABLE%.[UserId] =  %SCHEMA%.%USERTABLE%.[Id] WHERE [Email] = %EMAIL%";
-		private static string SelectUserByIdQuery = "SELECT %SCHEMA%.%USERTABLE%.*, %SCHEMA%.%USERROLETABLE%.* FROM %SCHEMA%.%USERTABLE% LEFT JOIN %SCHEMA%.%USERROLETABLE% ON %SCHEMA%.%USERROLETABLE%.[UserId] =  %SCHEMA%.%USERTABLE%.[Id] WHERE [Id] = %ID%";
-		private static string InsertUserClaimQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
-		private static string InsertUserLoginQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
-		private static string InsertUserRoleQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
-		private static string GetUserLoginByLoginProviderAndProviderKeyQuery = "SELECT TOP 1 %USERFILTER%, %SCHEMA%.%USERROLETABLE%.* FROM %SCHEMA%.%USERTABLE% LEFT JOIN %SCHEMA%.%USERROLETABLE% ON %SCHEMA%.%USERROLETABLE%.[UserId] = %SCHEMA%.%USERTABLE%.[Id] INNER JOIN %SCHEMA%.%USERLOGINTABLE% ON %SCHEMA%.%USERTABLE%.[Id] = %SCHEMA%.%USERLOGINTABLE%.[UserId] WHERE [LoginProvider] = @LoginProvider AND [ProviderKey] = @ProviderKey";
-		private static string GetClaimsByUserIdQuery = "SELECT [ClaimType], [ClaimValue] FROM %SCHEMA%.%TABLENAME% WHERE [UserId] = %ID%";
-		private static string GetRolesByUserIdQuery = "SELECT [Name] FROM %SCHEMA%.%ROLETABLE%, %SCHEMA%.%USERROLETABLE% WHERE [UserId] = %ID% AND %SCHEMA%.%ROLETABLE%.[Id] = %SCHEMA%.%USERROLETABLE%.[RoleId]";
-		private static string GetUserLoginInfoByIdQuery = "SELECT [LoginProvider], [Name], [ProviderKey] FROM %SCHEMA%.%TABLENAME% WHERE [UserId] = %ID%";
-		private static string GetUsersByClaimQuery = "SELECT %USERFILTER% FROM %SCHEMA%.%USERTABLE%, %SCHEMA%.%USERCLAIMTABLE% WHERE [ClaimValue] = %CLAIMVALUE% AND [ClaimType] = %CLAIMTYPE%";
-		private static string GetUsersInRoleQuery = "SELECT %USERFILTER% FROM %SCHEMA%.%USERTABLE%, %SCHEMA%.%USERROLETABLE%, %SCHEMA%.%ROLETABLE% WHERE %SCHEMA%.%ROLETABLE%.[Name] = %ROLENAME% AND %SCHEMA%.%USERROLETABLE%.[RoleId] = %SCHEMA%.%ROLETABLE%.[Id] AND %SCHEMA%.%USERROLETABLE%.[UserId] = %SCHEMA%.%USERTABLE%.[Id]";
-		private static string IsInRoleQuery = "SELECT 1 FROM %SCHEMA%.%USERTABLE%, %SCHEMA%.%USERROLETABLE%, %SCHEMA%.%ROLETABLE% WHERE %SCHEMA%.%ROLETABLE%.[Name] = %ROLENAME% AND %SCHEMA%.%USERTABLE%.[Id] = %USERID% AND %SCHEMA%.%USERROLETABLE%.[RoleId] = %SCHEMA%.%ROLETABLE%.[Id] AND %SCHEMA%.%USERROLETABLE%.[UserId] = %SCHEMA%.%USERTABLE%.[Id]";
-		private static string RemoveClaimsQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [UserId] = %ID% AND [ClaimType] = %CLAIMTYPE% AND [ClaimValue] = %CLAIMVALUE%";
-		private static string RemoveUserFromRoleQuery = "DELETE FROM %SCHEMA%.%USERROLETABLE% WHERE [UserId] = %USERID% AND [RoleId] = (SELECT [Id] FROM %SCHEMA%.%ROLETABLE% WHERE [Name] = %ROLENAME%)";
-		private static string RemoveLoginForUserQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [UserId] = %USERID% AND [LoginProvider] = %LOGINPROVIDER% AND [ProviderKey] = %PROVIDERKEY%";
-		private static string UpdateClaimForUserQuery = "UPDATE %SCHEMA%.%TABLENAME% SET [ClaimType] = %NEWCLAIMTYPE%, [ClaimValue] = %NEWCLAIMVALUE% WHERE [UserId] = %USERID% AND [ClaimType] = %CLAIMTYPE% AND [ClaimValue] = %CLAIMVALUE%";
-		private static string SelectClaimByRoleQuery = "SELECT %SCHEMA%.%ROLECLAIMTABLE%.* FROM %SCHEMA%.%ROLETABLE%, %SCHEMA%.%ROLECLAIMTABLE% WHERE [RoleId] = %ROLEID% AND %SCHEMA%.%ROLECLAIMTABLE%.[RoleId] = %SCHEMA%.%ROLETABLE%.[Id]";
-		private static string InsertRoleClaimQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
-		private static string DeleteRoleClaimQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [RoleId] = %ROLEID% AND [ClaimType] = %CLAIMTYPE% AND [ClaimValue] = %CLAIMVALUE%";
-		private static string RoleTable = "[AspNetRoles]";
-		private static string UserTable = "[AspNetUsers]";
-		private static string UserClaimTable = "[AspNetUserClaims]";
-		private static string UserRoleTable = "[AspNetUserRoles]";
-		private static string UserLoginTable = "[AspNetUserLogins]";
-		private static string RoleClaimTable = "[AspNetRoleClaims]";
+		private readonly IConnectionProvider _connectionProvider;
+		private readonly SqlConfiguration _sqlConfiguration;
 
-		private readonly IRoleRepository<TRole, TKey, TUserRole, TRoleClaim> _roleRepository;
-		private readonly IRoleClaimRepository<TRoleClaim, TKey> _roleClaimRepository;
-
-		public RoleStore(IRoleRepository<TRole, TKey, TUserRole, TRoleClaim> roleRepository,
-			IRoleClaimRepository<TRoleClaim, TKey> roleClaimRepository
-		  )
+		public RoleStore(IConnectionProvider connectionProvider, SqlConfiguration sqlConfiguration)
 		{
-			_roleRepository = roleRepository;
-			_roleClaimRepository = roleClaimRepository;
+			_connectionProvider = connectionProvider;
+			_sqlConfiguration = sqlConfiguration;
 		}
 
 		// Dapper 不可能实现这个
@@ -74,74 +33,98 @@ namespace AspNetCore.Identity.Dapper
 
 		public async Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
-			await _roleClaimRepository.AddClaimAsync(role.Id, claim, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				var roleClaim = Activator.CreateInstance<TRoleClaim>();
+				roleClaim.RoleId = role.Id;
+				roleClaim.ClaimType = claim.Type;
+				roleClaim.ClaimValue = claim.Value;
+
+				await conn.ExecuteAsync(_sqlConfiguration.AddRoleClaim, new { RoleId = role.Id, ClaimType = claim.Type, ClaimValue = claim.Value });
+			}
 		}
 
 		public async Task<IdentityResult> CreateAsync(TRole role, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
-			if (await _roleRepository.CreateAsync(role, cancellationToken))
+			using (var conn = _connectionProvider.Create())
 			{
-				return IdentityResult.Success;
-			}
-			else
-			{
-				return IdentityResult.Failed(new IdentityError { Description = $"Create role {role} failed." });
+				var result = await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.CreateRole, role);
+				return result == 1 ? IdentityResult.Success : IdentityResult.Failed();
 			}
 		}
 
 		public async Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
-			if (await _roleRepository.DeleteAsync(role.Id, cancellationToken))
+			using (var conn = _connectionProvider.Create())
 			{
-				return IdentityResult.Success;
-			}
-			else
-			{
-				return IdentityResult.Failed(new IdentityError { Description = $"Create role {role} failed." });
+				var result = await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.DeleteRoleById, role);
+				return result == 1 ? IdentityResult.Success : IdentityResult.Failed();
 			}
 		}
 
 		public void Dispose()
 		{
-
 		}
 
 		public async Task<TRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (string.IsNullOrWhiteSpace(roleId))
 				throw new ArgumentNullException(nameof(roleId));
 
-			return await _roleRepository.FindByIdAsync((TKey)Convert.ChangeType(roleId, typeof(TKey)));
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TRole>(conn, _sqlConfiguration.FindRoleById, new { Id = roleId });
+			}
 		}
 
 		public async Task<TRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (string.IsNullOrWhiteSpace(normalizedRoleName))
 				throw new ArgumentNullException(nameof(normalizedRoleName));
-
-			return await _roleRepository.FindByNameAsync(normalizedRoleName, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TRole>(conn, _sqlConfiguration.FindRoleByNormalizedName, new { NormalizedRoleName = normalizedRoleName });
+			}
 		}
 
 		public async Task<IList<Claim>> GetClaimsAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
-			return await _roleClaimRepository.GetClaimsAsync(role.Id);
-
+			using (var conn = _connectionProvider.Create())
+			{
+				var roleClaims = await SqlMapper.QueryAsync(conn, _sqlConfiguration.FindRoleClaimsByRoleId, new { RoleId = role.Id });
+				var results = roleClaims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList();
+				return results;
+			}
 		}
 
 		public async Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
@@ -150,6 +133,8 @@ namespace AspNetCore.Identity.Dapper
 
 		public async Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
@@ -158,6 +143,8 @@ namespace AspNetCore.Identity.Dapper
 
 		public async Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
@@ -166,44 +153,65 @@ namespace AspNetCore.Identity.Dapper
 
 		public async Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
 			if (claim == null)
 				throw new ArgumentNullException(nameof(claim));
 
-			await _roleClaimRepository.RemoveClaimAsync(role.Id, claim, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				var paramters = new { RoleId = role.Id, ClaimType = claim.Type, ClaimValue = claim.Value };
+				await conn.ExecuteAsync(_sqlConfiguration.RemoveRoleClaimsByRoleIdAndClaim, paramters);
+			}
 		}
 
 		public async Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
 			if (string.IsNullOrWhiteSpace(normalizedName))
 				throw new ArgumentNullException(nameof(normalizedName));
 
-			await _roleRepository.SetRoleNameAsync(role.Id, normalizedName);
+			using (var conn = _connectionProvider.Create())
+			{
+				await conn.ExecuteAsync(_sqlConfiguration.SetNormalizedRoleNameById, new { role.Id, NormalizedName = normalizedName });
+			}
 		}
 
 		public async Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
 			if (string.IsNullOrWhiteSpace(roleName))
 				throw new ArgumentNullException(nameof(roleName));
 
-			await _roleRepository.SetRoleNameAsync(role.Id, roleName);
+			using (var conn = _connectionProvider.Create())
+			{
+				await conn.ExecuteAsync(_sqlConfiguration.SetRoleNameById, new { role.Id, Name = roleName });
+			}
 		}
 
 		public async Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (role == null)
 				throw new ArgumentNullException(nameof(role));
 
-			var result = await _roleRepository.UpdateAsync(role, cancellationToken);
-			return result ? IdentityResult.Success : IdentityResult.Failed(new IdentityError { Description = "Update role failed." });
+			using (var conn = _connectionProvider.Create())
+			{
+				var result = await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.UpdateRole, role);
+				return result > 0 ? IdentityResult.Success : IdentityResult.Failed(new IdentityError { Description = "Update user failed." });
+			}
 		}
 	}
 }

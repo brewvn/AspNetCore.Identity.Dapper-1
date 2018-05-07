@@ -13,9 +13,32 @@ using System.Globalization;
 
 namespace AspNetCore.Identity.Dapper
 {
+	public class UserStore : UserStore<IdentityUser, IdentityRole, string>
+	{
+		public UserStore(IdentityErrorDescriber describer, IConnectionProvider connectionProvider, SqlConfiguration sqlConfiguration) : base(describer, connectionProvider, sqlConfiguration) { }
+	}
+
+	public class UserStore<TUser> : UserStore<TUser, IdentityRole, string>
+		 where TUser : IdentityUser<string>, new()
+	{
+		public UserStore(IdentityErrorDescriber describer, IConnectionProvider connectionProvider, SqlConfiguration sqlConfiguration) : base(describer, connectionProvider, sqlConfiguration) { }
+	}
+
+	public class UserStore<TUser, TRole, TKey> : UserStore<TUser, TRole, TKey, IdentityUserClaim<TKey>, IdentityUserRole<TKey>, IdentityUserLogin<TKey>, IdentityUserToken<TKey>, IdentityRoleClaim<TKey>>
+		where TUser : IdentityUser<TKey>
+		where TRole : IdentityRole<TKey>
+		where TKey : IEquatable<TKey>
+	{
+		/// <summary>
+		/// Constructs a new instance of <see cref="UserStore{TUser, TRole, TContext, TKey}"/>.
+		/// </summary>
+		/// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
+		public UserStore(IdentityErrorDescriber describer, IConnectionProvider connectionProvider, SqlConfiguration sqlConfiguration) : base(describer, connectionProvider, sqlConfiguration) { }
+	}
+
 	public class UserStore<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
 		UserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>
-		//IProtectedUserStore<TUser>
+		// TODO: IProtectedUserStore<TUser>
 		where TUser : IdentityUser<TKey>
 		where TRole : IdentityRole<TKey>
 		where TKey : IEquatable<TKey>
@@ -25,72 +48,21 @@ namespace AspNetCore.Identity.Dapper
 		where TUserToken : IdentityUserToken<TKey>, new()
 		where TRoleClaim : IdentityRoleClaim<TKey>, new()
 	{
-		//private const string ParameterNotation = "@";
-		//private const string SchemaName = "[dbo]";
-		//private const string TableColumnStartNotation = "[";
-		//private const string TableColumnEndNotation = "]";
-		//private const string InsertRoleQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
-		//private const string DeleteRoleQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [Id] = %ID%";
-		//private const string UpdateRoleQuery = "UPDATE %SCHEMA%.%TABLENAME% %SETVALUES% WHERE [Id] = %ID%";
-		//private const string SelectRoleByNameQuery = "SELECT * FROM %SCHEMA%.%TABLENAME% WHERE [Name] = %NAME%";
-		//private const string SelectRoleByIdQuery = "SELECT * FROM %SCHEMA%.%TABLENAME% WHERE [Id] = %ID%";
-		//private const string InsertUserQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% OUTPUT INSERTED.Id VALUES(%VALUES%)";
-		//private const string DeleteUserQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [Id] = %ID%";
-		//private const string UpdateUserQuery = "UPDATE %SCHEMA%.%TABLENAME% %SETVALUES% WHERE [Id] = %ID%";
-		//private const string SelectUserByUserNameQuery = "SELECT %SCHEMA%.%USERTABLE%.*, %SCHEMA%.%USERROLETABLE%.* FROM %SCHEMA%.%USERTABLE% LEFT JOIN %SCHEMA%.%USERROLETABLE% ON %SCHEMA%.%USERROLETABLE%.[UserId] =  %SCHEMA%.%USERTABLE%.[Id] WHERE [UserName] = %USERNAME%";
-		//private const string SelectUserByEmailQuery = "SELECT %SCHEMA%.%USERTABLE%.*, %SCHEMA%.%USERROLETABLE%.* FROM %SCHEMA%.%USERTABLE% LEFT JOIN %SCHEMA%.%USERROLETABLE% ON %SCHEMA%.%USERROLETABLE%.[UserId] =  %SCHEMA%.%USERTABLE%.[Id] WHERE [Email] = %EMAIL%";
-		//private const string SelectUserByIdQuery = "SELECT %SCHEMA%.%USERTABLE%.*, %SCHEMA%.%USERROLETABLE%.* FROM %SCHEMA%.%USERTABLE% LEFT JOIN %SCHEMA%.%USERROLETABLE% ON %SCHEMA%.%USERROLETABLE%.[UserId] =  %SCHEMA%.%USERTABLE%.[Id] WHERE [Id] = %ID%";
-		//private const string InsertUserClaimQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
-		//private const string InsertUserLoginQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
-		//private const string InsertUserRoleQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
-		//private const string GetUserLoginByLoginProviderAndProviderKeyQuery = "SELECT TOP 1 %USERFILTER%, %SCHEMA%.%USERROLETABLE%.* FROM %SCHEMA%.%USERTABLE% LEFT JOIN %SCHEMA%.%USERROLETABLE% ON %SCHEMA%.%USERROLETABLE%.[UserId] = %SCHEMA%.%USERTABLE%.[Id] INNER JOIN %SCHEMA%.%USERLOGINTABLE% ON %SCHEMA%.%USERTABLE%.[Id] = %SCHEMA%.%USERLOGINTABLE%.[UserId] WHERE [LoginProvider] = @LoginProvider AND [ProviderKey] = @ProviderKey";
-		//private const string GetClaimsByUserIdQuery = "SELECT [ClaimType], [ClaimValue] FROM %SCHEMA%.%TABLENAME% WHERE [UserId] = %ID%";
-		//private const string GetRolesByUserIdQuery = "SELECT [Name] FROM %SCHEMA%.%ROLETABLE%, %SCHEMA%.%USERROLETABLE% WHERE [UserId] = %ID% AND %SCHEMA%.%ROLETABLE%.[Id] = %SCHEMA%.%USERROLETABLE%.[RoleId]";
-		//private const string GetUserLoginInfoByIdQuery = "SELECT [LoginProvider], [Name], [ProviderKey] FROM %SCHEMA%.%TABLENAME% WHERE [UserId] = %ID%";
-		//private const string GetUsersByClaimQuery = "SELECT %USERFILTER% FROM %SCHEMA%.%USERTABLE%, %SCHEMA%.%USERCLAIMTABLE% WHERE [ClaimValue] = %CLAIMVALUE% AND [ClaimType] = %CLAIMTYPE%";
-		//private const string GetUsersInRoleQuery = "SELECT %USERFILTER% FROM %SCHEMA%.%USERTABLE%, %SCHEMA%.%USERROLETABLE%, %SCHEMA%.%ROLETABLE% WHERE %SCHEMA%.%ROLETABLE%.[Name] = %ROLENAME% AND %SCHEMA%.%USERROLETABLE%.[RoleId] = %SCHEMA%.%ROLETABLE%.[Id] AND %SCHEMA%.%USERROLETABLE%.[UserId] = %SCHEMA%.%USERTABLE%.[Id]";
-		//private const string IsInRoleQuery = "SELECT 1 FROM %SCHEMA%.%USERTABLE%, %SCHEMA%.%USERROLETABLE%, %SCHEMA%.%ROLETABLE% WHERE %SCHEMA%.%ROLETABLE%.[Name] = %ROLENAME% AND %SCHEMA%.%USERTABLE%.[Id] = %USERID% AND %SCHEMA%.%USERROLETABLE%.[RoleId] = %SCHEMA%.%ROLETABLE%.[Id] AND %SCHEMA%.%USERROLETABLE%.[UserId] = %SCHEMA%.%USERTABLE%.[Id]";
-		//private const string RemoveClaimsQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [UserId] = %ID% AND [ClaimType] = %CLAIMTYPE% AND [ClaimValue] = %CLAIMVALUE%";
-		//private const string RemoveUserFromRoleQuery = "DELETE FROM %SCHEMA%.%USERROLETABLE% WHERE [UserId] = %USERID% AND [RoleId] = (SELECT [Id] FROM %SCHEMA%.%ROLETABLE% WHERE [Name] = %ROLENAME%)";
-		//private const string RemoveLoginForUserQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [UserId] = %USERID% AND [LoginProvider] = %LOGINPROVIDER% AND [ProviderKey] = %PROVIDERKEY%";
-		//private const string UpdateClaimForUserQuery = "UPDATE %SCHEMA%.%TABLENAME% SET [ClaimType] = %NEWCLAIMTYPE%, [ClaimValue] = %NEWCLAIMVALUE% WHERE [UserId] = %USERID% AND [ClaimType] = %CLAIMTYPE% AND [ClaimValue] = %CLAIMVALUE%";
-		//private const string SelectClaimByRoleQuery = "SELECT %SCHEMA%.%ROLECLAIMTABLE%.* FROM %SCHEMA%.%ROLETABLE%, %SCHEMA%.%ROLECLAIMTABLE% WHERE [RoleId] = %ROLEID% AND %SCHEMA%.%ROLECLAIMTABLE%.[RoleId] = %SCHEMA%.%ROLETABLE%.[Id]";
-		//private const string InsertRoleClaimQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
-		//private const string DeleteRoleClaimQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [RoleId] = %ROLEID% AND [ClaimType] = %CLAIMTYPE% AND [ClaimValue] = %CLAIMVALUE%";
-		//private const string RoleTable = "[IdentityRole]";
-		//private const string UserTable = "[IdentityUser]";
-		//private const string UserClaimTable = "[IdentityUserClaim]";
-		//private const string UserRoleTable = "[IdentityUserRole]";
-		//private const string UserLoginTable = "[IdentityLogin]";
-		//private const string RoleClaimTable = "[IdentityRoleClaim]";
+		private readonly IConnectionProvider _connectionProvider;
+		private readonly SqlConfiguration _sqlConfiguration;
 
-		private readonly IUserRepository<TUser, TKey, TUserRole, TRoleClaim, TUserClaim, TUserLogin, TRole> _userRepository;
-		private readonly IUserClaimRepository<TUserClaim, TKey> _userClaimRepository;
-
-		private readonly IRoleRepository<TRole, TKey, TUserRole, TRoleClaim> _roleRepository;
-		private readonly IUserTokenRepository<TUserToken, TKey> _userTokenRepository;
-		private readonly IUserLoginRepository<TUserLogin, TKey> _userLoginRepository;
-		private readonly IUserRoleRepository<TUser, TUserRole, TKey> _userRoleRepository;
-
-		public UserStore(IdentityErrorDescriber describer,
-			IUserRepository<TUser, TKey, TUserRole, TRoleClaim, TUserClaim, TUserLogin, TRole> userRepository,
-			IRoleRepository<TRole, TKey, TUserRole, TRoleClaim> roleRepository,
-			IUserTokenRepository<TUserToken, TKey> userTokenRepository,
-			IUserLoginRepository<TUserLogin, TKey> userLoginRepository,
-			IUserRoleRepository<TUser, TUserRole, TKey> userRoleRepository
-			) : base(describer)
+		public UserStore(IdentityErrorDescriber describer, IConnectionProvider connectionProvider, SqlConfiguration sqlConfiguration) : base(describer)
 		{
-			_userRepository = userRepository;
-			_roleRepository = roleRepository;
-			_userTokenRepository = userTokenRepository;
-			_userLoginRepository = userLoginRepository;
-			_userRoleRepository = userRoleRepository;
+			_connectionProvider = connectionProvider;
+			_sqlConfiguration = sqlConfiguration;
 		}
 
 		public override IQueryable<TUser> Users => throw new NotImplementedException();
 
 		public override async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -99,12 +71,25 @@ namespace AspNetCore.Identity.Dapper
 			{
 				throw new ArgumentNullException(nameof(claims));
 			}
-
-			await _userClaimRepository.AddClaimsAsync(user.Id, claims, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				var results = new List<dynamic>();
+				foreach (var claim in claims)
+				{
+					var userClaim = Activator.CreateInstance<TUserClaim>();
+					userClaim.UserId = user.Id;
+					userClaim.ClaimType = claim.Type;
+					userClaim.ClaimValue = claim.Value;
+					results.Add(userClaim);
+				}
+				await conn.ExecuteTransactionAsync(_sqlConfiguration.AddUserClaims, results, rows => rows == results.Count);
+			}
 		}
 
 		public override async Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -113,11 +98,23 @@ namespace AspNetCore.Identity.Dapper
 			{
 				throw new ArgumentNullException(nameof(login));
 			}
-			await _userLoginRepository.AddLoginAsync(user.Id, login, cancellationToken);
+			var userLogin = new
+			{
+				UserId = user.Id,
+				login.LoginProvider,
+				login.ProviderKey,
+				Name = login.ProviderDisplayName
+			};
+			using (var conn = _connectionProvider.Create())
+			{
+				await conn.ExecuteAsync(_sqlConfiguration.AddLogin, userLogin);
+			}
 		}
 
 		public override async Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -132,86 +129,109 @@ namespace AspNetCore.Identity.Dapper
 				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Role {0} does not exist.", normalizedRoleName));
 			}
 			var userRole = CreateUserRole(user, roleEntity);
-			await _userRoleRepository.AddUserRoleAsync(userRole, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.AddUserRole, userRole);
+			}
 		}
 
 		public override async Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
-
-			var result = await _userRepository.CreateAsync(user, cancellationToken);
-
-			if (!result.Equals(default(TKey)))
+			using (var conn = _connectionProvider.Create())
 			{
-				user.Id = result;
-				return IdentityResult.Success;
-			}
-			else
-			{
-				return IdentityResult.Failed();
+				var result = await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.CreateUser, user);
+				return result == 1 ? IdentityResult.Success : IdentityResult.Failed();
 			}
 		}
 
 		public override async Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
-
-
-			try
+			using (var conn = _connectionProvider.Create())
 			{
-				await _userRepository.DeleteAsync(user.Id, cancellationToken);
+				var result = await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.DeleteUserById, user);
+				return result == 1 ? IdentityResult.Success : IdentityResult.Failed();
 			}
-			catch
-			{
-				return IdentityResult.Failed(new IdentityError { Description = "Remove user failed." });
-			}
-			return IdentityResult.Success;
 		}
 
 		public override async Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (string.IsNullOrEmpty(normalizedEmail))
 				throw new ArgumentNullException(nameof(normalizedEmail));
 
-			return await _userRepository.FindByEmailAsync(normalizedEmail, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TUser>(conn, _sqlConfiguration.FindUserByNormalizedEmail, new { NormalizedEmail = normalizedEmail });
+			}
 		}
 
 		public override async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (string.IsNullOrEmpty(userId))
 				throw new ArgumentNullException(nameof(userId));
 
-			return await _userRepository.FindByIdAsync((TKey)Convert.ChangeType(userId, typeof(TKey)), cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TUser>(conn, _sqlConfiguration.FindUserById, new { Id = userId });
+			}
 		}
 
 		public override async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (string.IsNullOrEmpty(normalizedUserName))
 				throw new ArgumentNullException(nameof(normalizedUserName));
 
-			return await _userRepository.FindByNameAsync(normalizedUserName);
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TUser>(conn, _sqlConfiguration.FindUserByNormalizedName, new { NormalizedName = normalizedUserName });
+			}
 		}
 
 		public override async Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 
-			return await _userClaimRepository.GetClaimsAsync(user.Id);
+			using (var conn = _connectionProvider.Create())
+			{
+				var userClaims = await SqlMapper.QueryAsync(conn, _sqlConfiguration.FindUserClaimsByUserId, new { UserId = user.Id });
+				var results = userClaims.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList();
+				return results;
+			}
 		}
 
 		public override async Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 
-			return await _userLoginRepository.GetLoginsAsync(user.Id);
+			using (var conn = _connectionProvider.Create())
+			{
+				var userLogins = await SqlMapper.QueryAsync(conn, _sqlConfiguration.FindUserLoginsByUserId, new { UserId = user.Id });
+				var results = userLogins.Select(y => new UserLoginInfo(y.LoginProvider, y.ProviderKey, y.Name)).ToList();
+				return results;
+			}
 		}
 
 		public override async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
@@ -219,61 +239,95 @@ namespace AspNetCore.Identity.Dapper
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 
-			return await _userRoleRepository.GetRolesAsync(user.Id);
+			using (var conn = _connectionProvider.Create())
+			{
+				var roles = await SqlMapper.QueryAsync<string>(conn, _sqlConfiguration.FindUserRolesByUserId, new { UserId = user.Id });
+				return roles.ToList();
+			}
 		}
 
 		public override async Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (claim == null)
 				throw new ArgumentNullException(nameof(claim));
-			IEnumerable<TUserClaim> userClaims = _userClaimRepository.GetUsersAsync(claim);
-			var ids = userClaims.Select(uc => uc.UserId).ToArray();
-			return await _userRepository.FindByIdsAsync(ids);
+
+			using (var conn = _connectionProvider.Create())
+			{
+				var users = await SqlMapper.QueryAsync<TUser>(conn, _sqlConfiguration.FindUsersByClaim, new { ClaimValue = claim.Value, ClaimType = claim.Type });
+				return users.ToList();
+			}
 		}
 
 		public override async Task<IList<TUser>> GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (string.IsNullOrEmpty(normalizedRoleName))
 				throw new ArgumentNullException(nameof(normalizedRoleName));
 
-			return await _userRoleRepository.GetUsersInRoleAsync(normalizedRoleName, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				var users = await SqlMapper.QueryAsync<TUser>(conn, _sqlConfiguration.FindUsersByRole, new { RoleName = normalizedRoleName });
+				return users.ToList();
+			}
 		}
 
 		public override async Task<bool> IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 
 			if (string.IsNullOrEmpty(normalizedRoleName))
 				throw new ArgumentNullException(nameof(normalizedRoleName));
 
-			return await _userRoleRepository.IsInRoleAsync(user.Id, normalizedRoleName);
+			using (var conn = _connectionProvider.Create())
+			{
+				var counts = await SqlMapper.QueryFirstAsync<int>(conn, _sqlConfiguration.CountUserRolesByUserId, new { RoleName = normalizedRoleName, UserId = user.Id });
+				return counts > 0;
+			}
 		}
 
 		public override async Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 
 			if (claims == null)
 				throw new ArgumentNullException(nameof(claims));
 
-			await _userClaimRepository.RemoveClaimsAsync(user.Id, claims, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				var paramters = claims.Select(c => new { UserId = user.Id, ClaimType = c.Type, ClaimValue = c.Value });
+				await conn.ExecuteTransactionAsync(_sqlConfiguration.RemoveUserClaimsByUserIdAndClaims, paramters, rows => rows == claims.Count());
+			}
 		}
 
 		public override async Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 
 			if (string.IsNullOrEmpty(normalizedRoleName))
 				throw new ArgumentNullException(nameof(normalizedRoleName));
 
-			await _userRoleRepository.RemoveFromRoleAsync(user.Id, normalizedRoleName, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.RemoveUserRolesByUserIdAndNormalizedRoleName, new { RoleName = normalizedRoleName, UserId = user.Id });
+			}
 		}
 
 		public override async Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 
@@ -283,11 +337,21 @@ namespace AspNetCore.Identity.Dapper
 			if (string.IsNullOrEmpty(providerKey))
 				throw new ArgumentNullException(nameof(providerKey));
 
-			await _userLoginRepository.RemoveLoginAsync(user.Id, loginProvider, providerKey, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.RemoveUserLogins, new
+				{
+					UserId = user.Id,
+					LoginProvider = loginProvider,
+					ProviderKey = providerKey
+				});
+			}
 		}
 
 		public override async Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 
@@ -297,16 +361,31 @@ namespace AspNetCore.Identity.Dapper
 			if (newClaim == null)
 				throw new ArgumentNullException(nameof(newClaim));
 
-			await _userClaimRepository.ReplaceClaimAsync(user.Id, claim, newClaim, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.ReplaceUserClaim, new
+				{
+					NewClaimType = newClaim.Type,
+					NewClaimValue = newClaim.Value,
+					UserId = user.Id,
+					ClaimType = claim.Type,
+					ClaimValue = claim.Value
+				});
+			}
 		}
 
 		public override async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 
-			var result = await _userRepository.UpdateAsync(user, cancellationToken);
-			return result ? IdentityResult.Success : IdentityResult.Failed(new IdentityError { Description = "Update user failed." });
+			using (var conn = _connectionProvider.Create())
+			{
+				var result = await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.UpdateUser, user);
+				return result > 0 ? IdentityResult.Success : IdentityResult.Failed(new IdentityError { Description = "Update user failed." });
+			}
 		}
 
 		protected override async Task AddUserTokenAsync(TUserToken token)
@@ -314,19 +393,29 @@ namespace AspNetCore.Identity.Dapper
 			if (token == null)
 				throw new ArgumentNullException(nameof(token));
 
-			await _userTokenRepository.AddUserTokenAsync(token);
+			using (var conn = _connectionProvider.Create())
+			{
+				await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.AddUserToken, token);
+			}
 		}
 
 		protected override async Task<TRole> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (string.IsNullOrWhiteSpace(normalizedRoleName))
 				throw new ArgumentNullException(nameof(normalizedRoleName));
 
-			return await _roleRepository.FindRoleAsync(normalizedRoleName, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TRole>(conn, _sqlConfiguration.FindRoleByNormalizedRoleName);
+			}
 		}
 
 		protected override async Task<TUserToken> FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 
@@ -336,19 +425,34 @@ namespace AspNetCore.Identity.Dapper
 			if (string.IsNullOrWhiteSpace(name))
 				throw new ArgumentNullException(nameof(name));
 
-			return await _userTokenRepository.FindTokenAsync(user.Id, loginProvider, name, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TUserToken>(conn, _sqlConfiguration.FindUserTokenByUserIdAndLoginProviderAndName, new
+				{
+					UserId = user.Id,
+					LoginProvider = loginProvider,
+					Name = name
+				});
+			}
 		}
 
 		protected override async Task<TUser> FindUserAsync(TKey userId, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (userId == null)
 				throw new ArgumentNullException(nameof(userId));
 
-			return await _userRepository.FindByIdAsync(userId, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TUser>(conn, _sqlConfiguration.FindUserById, new { Id = userId });
+			}
 		}
 
 		protected override async Task<TUserLogin> FindUserLoginAsync(TKey userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (userId == null)
 				throw new ArgumentNullException(nameof(userId));
 
@@ -358,29 +462,55 @@ namespace AspNetCore.Identity.Dapper
 			if (string.IsNullOrWhiteSpace(providerKey))
 				throw new ArgumentNullException(nameof(providerKey));
 
-			return await _userLoginRepository.FindUserLoginAsync(userId, loginProvider, providerKey, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TUserLogin>(conn, _sqlConfiguration.FindUserLoginByUserIdAndLoginProviderAndProviderKey, new
+				{
+					UserId = userId,
+					LoginProvider = loginProvider,
+					ProviderKey = providerKey
+				});
+			}
 		}
 
 		protected override async Task<TUserLogin> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (string.IsNullOrWhiteSpace(loginProvider))
 				throw new ArgumentNullException(nameof(loginProvider));
 
 			if (string.IsNullOrWhiteSpace(providerKey))
 				throw new ArgumentNullException(nameof(providerKey));
 
-			return await _userLoginRepository.FindUserLoginAsync(loginProvider, providerKey, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TUserLogin>(conn, _sqlConfiguration.FindUserLoginByLoginProviderAndProviderKey, new
+				{
+					LoginProvider = loginProvider,
+					ProviderKey = providerKey
+				});
+			}
 		}
 
 		protected override async Task<TUserRole> FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (userId == null)
 				throw new ArgumentNullException(nameof(userId));
 
 			if (roleId == null)
 				throw new ArgumentNullException(nameof(roleId));
 
-			return await _userRoleRepository.FindUserRoleAsync(userId, roleId, cancellationToken);
+			using (var conn = _connectionProvider.Create())
+			{
+				return await SqlMapper.QueryFirstAsync<TUserRole>(conn, _sqlConfiguration.FindUserRoleByUserIdAndRoleId, new
+				{
+					UserId = userId,
+					RoleId = roleId
+				});
+			}
 		}
 
 		protected override async Task RemoveUserTokenAsync(TUserToken token)
@@ -388,7 +518,10 @@ namespace AspNetCore.Identity.Dapper
 			if (token == null)
 				throw new ArgumentNullException(nameof(token));
 
-			await _userTokenRepository.RemoveUserTokenAsync(token.UserId);
+			using (var conn = _connectionProvider.Create())
+			{
+				await SqlMapper.ExecuteAsync(conn, _sqlConfiguration.RemoveUserTokenById, token);
+			}
 		}
 	}
 }
