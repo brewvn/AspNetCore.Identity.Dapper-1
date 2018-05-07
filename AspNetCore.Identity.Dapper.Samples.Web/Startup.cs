@@ -30,6 +30,8 @@ namespace AspNetCore.Identity.Dapper.Samples.Web
 			services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+			services.AddScoped<IConnectionProvider, SqlServerConnectionProvider>();
+
 			//services.AddIdentity<ApplicationUser, IdentityRole>()
 			//	.AddEntityFrameworkStores<ApplicationDbContext>()
 			//	.AddDefaultTokenProviders();
@@ -42,6 +44,7 @@ namespace AspNetCore.Identity.Dapper.Samples.Web
 			services.AddTransient<IEmailSender, EmailSender>();
 
 			services.AddMvc();
+			var a = services.BuildServiceProvider();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
