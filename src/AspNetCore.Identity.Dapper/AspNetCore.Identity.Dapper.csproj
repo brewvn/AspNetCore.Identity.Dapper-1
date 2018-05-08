@@ -1,6 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>zlzforever@163.com</Authors>
+    <Company>dotnet-china</Company>
+    <Product>dotnet-china</Product>
+    <Description>ASP.NET Core Identity provider that uses Dapper.</Description>
+    <PackageLicenseUrl>https://github.com/dotnet-china/AspNetCore.Identity.Dapper/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/dotnet-china/AspNetCore.Identity.Dapper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dotnet-china/AspNetCore.Identity.Dapper</RepositoryUrl>
+    <Copyright>©dotnet-china. All rights reserved.</Copyright>
+    <PackageTags>aspnetcore;identity;membership</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.4" />
