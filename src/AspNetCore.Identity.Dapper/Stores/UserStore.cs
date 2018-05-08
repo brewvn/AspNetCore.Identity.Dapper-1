@@ -233,6 +233,8 @@ namespace AspNetCore.Identity.Dapper.Stores
 
 		public override async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			if (user == null)
 				throw new ArgumentNullException(nameof(user));
 

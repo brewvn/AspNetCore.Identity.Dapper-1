@@ -12,12 +12,14 @@
     <RepositoryUrl>https://github.com/dotnet-china/AspNetCore.Identity.Dapper</RepositoryUrl>
     <Copyright>©dotnet-china. All rights reserved.</Copyright>
     <PackageTags>aspnetcore;identity;membership</PackageTags>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.0.3" />
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="2.0.3" />
     <PackageReference Include="System.Reflection" Version="4.3.0" />
   </ItemGroup>
 </Project>
