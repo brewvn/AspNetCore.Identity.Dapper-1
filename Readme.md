@@ -6,14 +6,12 @@
 
 - 安装 SqlExpress
 - 设置 AspNetCore.Identity.Dapper.Samples.Web 为启动项目
-- 在 Startup.cs 中删除 AddEntityFrameworkStores 的注释后, 注释 AddDapperStores
 - 在 Package Mananger Console中运行 update-database
-- 在 Startup.cs 中注释 AddEntityFrameworkStores, 删除 AddDapperStores 的注释
 - 运行项目
 
 #### 运行测试项目的
 
-- 执行"运行项目方法"的前4步
+- 执行"运行项目方法"的前3步
 - 运行测试用例
 
 #### 扩展至其它数据库的方法
