@@ -19,7 +19,8 @@
 - 实现 IStoreProvider 用于创建 DbConnection, 参考 https://github.com/dotnet-china/AspNetCore.Identity.Dapper/blob/master/src/AspNetCore.Identity.Dapper/SqlServerProvider.cs
 - 继承实现 SqlConfiguration 用于提供对应的SQL语句, 如: MySqlSqlConfiguraiton
 
-#### 注意与建议
+#### 说明与建议
 
 - Identity相关实体主键建议使用默认的string即Guid
 - Identity相关实体主键为int或long时, 约定主键为自增, 在生成insert Sql语句时注意忽略 id
+- 仅支持 IdentityUser 扩展(添加、删除字段), SqlConfiguration 的 InitUserSql方法实现的对列名的动态化, Role、UserClaims之类的表没有扩展的必要?
