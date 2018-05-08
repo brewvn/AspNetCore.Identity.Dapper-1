@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
@@ -11,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using AspNetCore.Identity.Dapper.Samples.Web.Data;
 using AspNetCore.Identity.Dapper.Samples.Web.Models;
 using AspNetCore.Identity.Dapper.Samples.Web.Services;
-using System.Data;
 
 namespace AspNetCore.Identity.Dapper.Samples.Web
 {
@@ -35,7 +30,8 @@ namespace AspNetCore.Identity.Dapper.Samples.Web
 				x.Password.RequireUppercase = false;
 				x.Password.RequireNonAlphanumeric = false;
 			})
-			.AddEntityFrameworkStores<ApplicationDbContext>()
+			//.AddEntityFrameworkStores<ApplicationDbContext>()
+			.AddDapperStores(new SqlServerProvider(Configuration.GetConnectionString("DefaultConnection")))
 			.AddDefaultTokenProviders();
 
 			// Add application services.

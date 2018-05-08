@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using AspNetCore.Identity.Dapper.Samples.Web.Services;
 
-namespace AspNetCore.Identity.Dapper.Samples.Web.Services
+namespace AspNetCore.Identity.Dapper.Samples.Web.Extensions
 {
     public static class EmailSenderExtensions
     {

@@ -1,5 +1,3 @@
-using System;
-
 namespace AspNetCore.Identity.Dapper.Samples.Web.Models
 {
     public class ErrorViewModel

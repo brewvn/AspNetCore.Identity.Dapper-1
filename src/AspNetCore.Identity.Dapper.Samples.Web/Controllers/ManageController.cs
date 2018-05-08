@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using AspNetCore.Identity.Dapper.Samples.Web.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using AspNetCore.Identity.Dapper.Samples.Web.Models;
 using AspNetCore.Identity.Dapper.Samples.Web.Models.ManageViewModels;
 using AspNetCore.Identity.Dapper.Samples.Web.Services;

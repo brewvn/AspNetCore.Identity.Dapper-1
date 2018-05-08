@@ -2,15 +2,19 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AspNetCore.Identity.Dapper.Test
 {
 	public static class MockHelpers
 	{
+		public static UserManager<IdentityUser> TestUserManager()
+		{
+			var userStore = TestHelpers.CreateUserStore();
+			return TestUserManager(userStore);
+		}
+
 		public static UserManager<TUser> TestUserManager<TUser>(IUserStore<TUser> store = null) where TUser : class
 		{
 			store = store ?? new Mock<IUserStore<TUser>>().Object;
@@ -30,6 +34,12 @@ namespace AspNetCore.Identity.Dapper.Test
 			validator.Setup(v => v.ValidateAsync(userManager, It.IsAny<TUser>()))
 				.Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
 			return userManager;
+		}
+
+		public static RoleManager<IdentityRole> TestRoleManager()
+		{
+			var roleStore = TestHelpers.CreateRoleStore();
+			return TestRoleManager(roleStore);
 		}
 
 		public static RoleManager<TRole> TestRoleManager<TRole>(IRoleStore<TRole> store = null) where TRole : class

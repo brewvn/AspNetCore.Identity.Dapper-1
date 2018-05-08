@@ -7,7 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Identity.Dapper"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Identity.Dapper.Samples.Web", "src\AspNetCore.Identity.Dapper.Samples.Web\AspNetCore.Identity.Dapper.Samples.Web.csproj", "{2EE3917C-D955-4FE4-B5AE-F3E474959676}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Identity.Dapper.Test", "src\AspNetCore.Identity.Dapper.Test\AspNetCore.Identity.Dapper.Test.csproj", "{24528293-C307-412F-99EB-CE8824824463}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Identity.Dapper.Test", "src\AspNetCore.Identity.Dapper.Test\AspNetCore.Identity.Dapper.Test.csproj", "{24528293-C307-412F-99EB-CE8824824463}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4840084E-CFC0-49A8-AEDF-758BDD1B930F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		Readme.md = Readme.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

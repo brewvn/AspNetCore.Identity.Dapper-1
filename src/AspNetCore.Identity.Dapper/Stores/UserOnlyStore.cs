@@ -1,54 +1,40 @@
-﻿using System;
+﻿using Dapper;
+using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
-using Microsoft.AspNetCore.Identity;
 
 namespace AspNetCore.Identity.Dapper.Stores
 {
-	public class UserStore : UserStore<IdentityUser, IdentityRole, string>
-	{
-		public UserStore(IdentityErrorDescriber describer, IStoreProvider connectionProvider)
-			: base(describer, connectionProvider) { }
-	}
-
-	public class UserStore<TUser, TKey> : UserStore<TUser, IdentityRole<TKey>, TKey>
-		where TUser : IdentityUser<TKey>
-		where TKey : IEquatable<TKey>
-	{
-		public UserStore(IdentityErrorDescriber describer, IStoreProvider connectionProvider)
-			: base(describer, connectionProvider) { }
-	}
-
-	public class UserStore<TUser, TRole, TKey> : UserStore<TUser, TRole, TKey, IdentityUserClaim<TKey>, IdentityUserRole<TKey>, IdentityUserLogin<TKey>, IdentityUserToken<TKey>, IdentityRoleClaim<TKey>>
-		where TUser : IdentityUser<TKey>
-		where TRole : IdentityRole<TKey>
-		where TKey : IEquatable<TKey>
-	{
-		public UserStore(IdentityErrorDescriber describer, IStoreProvider connectionProvider)
-			: base(describer, connectionProvider) { }
-	}
-
-	public class UserStore<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
-		UserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>
+	public class UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> :
+		UserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken>,
+		IUserLoginStore<TUser>,
+		IUserClaimStore<TUser>,
+		IUserPasswordStore<TUser>,
+		IUserSecurityStampStore<TUser>,
+		IUserEmailStore<TUser>,
+		IUserLockoutStore<TUser>,
+		IUserPhoneNumberStore<TUser>,
+		IQueryableUserStore<TUser>,
+		IUserTwoFactorStore<TUser>,
+		IUserAuthenticationTokenStore<TUser>,
+		IUserAuthenticatorKeyStore<TUser>,
+		IUserTwoFactorRecoveryCodeStore<TUser>
 		// TODO: IProtectedUserStore<TUser>
 		where TUser : IdentityUser<TKey>
-		where TRole : IdentityRole<TKey>
 		where TKey : IEquatable<TKey>
 		where TUserClaim : IdentityUserClaim<TKey>, new()
-		where TUserRole : IdentityUserRole<TKey>, new()
 		where TUserLogin : IdentityUserLogin<TKey>, new()
 		where TUserToken : IdentityUserToken<TKey>, new()
-		where TRoleClaim : IdentityRoleClaim<TKey>, new()
 	{
 		private readonly IStoreProvider _storeProvider;
 		private readonly SqlConfiguration _sqlConfiguration;
 
-		public UserStore(IdentityErrorDescriber describer, IStoreProvider connectionProvider) : base(describer)
+		public UserOnlyStore(IdentityErrorDescriber describer, IStoreProvider connectionProvider) : base(describer)
 		{
 			_storeProvider = connectionProvider;
 			_sqlConfiguration = connectionProvider.SqlConfiguration;
@@ -105,30 +91,6 @@ namespace AspNetCore.Identity.Dapper.Stores
 			using (var conn = _storeProvider.Create())
 			{
 				await conn.ExecuteAsync(_sqlConfiguration.AddLogin, userLogin);
-			}
-		}
-
-		public override async Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			if (user == null)
-			{
-				throw new ArgumentNullException(nameof(user));
-			}
-			if (string.IsNullOrWhiteSpace(normalizedRoleName))
-			{
-				throw new ArgumentException("Value cannot be null or empty.", nameof(normalizedRoleName));
-			}
-			var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
-			if (roleEntity == null)
-			{
-				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Role {0} does not exist.", normalizedRoleName));
-			}
-			var userRole = CreateUserRole(user, roleEntity);
-			using (var conn = _storeProvider.Create())
-			{
-				await conn.ExecuteAsync(_sqlConfiguration.AddUserRole, userRole);
 			}
 		}
 
@@ -231,18 +193,6 @@ namespace AspNetCore.Identity.Dapper.Stores
 			}
 		}
 
-		public override async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			if (user == null)
-				throw new ArgumentNullException(nameof(user));
-
-			using (var conn = _storeProvider.Create())
-			{
-				var roles = await conn.QueryAsync<string>(_sqlConfiguration.FindUserRolesByUserId, new { UserId = user.Id });
-				return roles.ToList();
-			}
-		}
-
 		public override async Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			cancellationToken.ThrowIfCancellationRequested();
@@ -254,37 +204,6 @@ namespace AspNetCore.Identity.Dapper.Stores
 			{
 				var users = await conn.QueryAsync<TUser>(_sqlConfiguration.FindUsersByClaim, new { ClaimValue = claim.Value, ClaimType = claim.Type });
 				return users.ToList();
-			}
-		}
-
-		public override async Task<IList<TUser>> GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			if (string.IsNullOrEmpty(normalizedRoleName))
-				throw new ArgumentNullException(nameof(normalizedRoleName));
-
-			using (var conn = _storeProvider.Create())
-			{
-				var users = await conn.QueryAsync<TUser>(_sqlConfiguration.FindUsersByRoleName, new { RoleName = normalizedRoleName });
-				return users.ToList();
-			}
-		}
-
-		public override async Task<bool> IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			if (user == null)
-				throw new ArgumentNullException(nameof(user));
-
-			if (string.IsNullOrEmpty(normalizedRoleName))
-				throw new ArgumentNullException(nameof(normalizedRoleName));
-
-			using (var conn = _storeProvider.Create())
-			{
-				var counts = await conn.QueryFirstOrDefaultAsync<int>(_sqlConfiguration.CountUserRolesByUserId, new { RoleName = normalizedRoleName, UserId = user.Id });
-				return counts > 0;
 			}
 		}
 
@@ -302,26 +221,6 @@ namespace AspNetCore.Identity.Dapper.Stores
 			{
 				var paramters = claims.Select(c => new { UserId = user.Id, ClaimType = c.Type, ClaimValue = c.Value });
 				await conn.ExecuteAsync(_sqlConfiguration.RemoveUserClaimsByUserIdAndClaims, paramters);
-			}
-		}
-
-		public override async Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			if (user == null)
-				throw new ArgumentNullException(nameof(user));
-
-			if (string.IsNullOrEmpty(normalizedRoleName))
-				throw new ArgumentNullException(nameof(normalizedRoleName));
-
-			using (var conn = _storeProvider.Create())
-			{
-				var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
-				if (role != null)
-				{
-					await conn.ExecuteAsync(_sqlConfiguration.RemoveUserRolesByUserIdAndRoleId, new { RoleId = role.Id, UserId = user.Id });
-				}
 			}
 		}
 
@@ -397,19 +296,6 @@ namespace AspNetCore.Identity.Dapper.Stores
 			using (var conn = _storeProvider.Create())
 			{
 				await conn.ExecuteAsync(_sqlConfiguration.AddUserToken, token);
-			}
-		}
-
-		protected override async Task<TRole> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			if (string.IsNullOrWhiteSpace(normalizedRoleName))
-				throw new ArgumentNullException(nameof(normalizedRoleName));
-
-			using (var conn = _storeProvider.Create())
-			{
-				return await conn.QueryFirstOrDefaultAsync<TRole>(_sqlConfiguration.FindRoleByNormalizedName, new { NormalizedName = normalizedRoleName });
 			}
 		}
 
@@ -490,26 +376,6 @@ namespace AspNetCore.Identity.Dapper.Stores
 				{
 					LoginProvider = loginProvider,
 					ProviderKey = providerKey
-				});
-			}
-		}
-
-		protected override async Task<TUserRole> FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			if (userId == null)
-				throw new ArgumentNullException(nameof(userId));
-
-			if (roleId == null)
-				throw new ArgumentNullException(nameof(roleId));
-
-			using (var conn = _storeProvider.Create())
-			{
-				return await conn.QueryFirstOrDefaultAsync<TUserRole>(_sqlConfiguration.FindUserRoleByUserIdAndRoleId, new
-				{
-					UserId = userId,
-					RoleId = roleId
 				});
 			}
 		}
