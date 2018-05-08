@@ -1,20 +1,25 @@
 ### AspNetCore.Identity.Dapper
 
-微软实现了EF的Identity, 在某些对性能有要求的场景下, 使用Dapper会是一个更好的选择。此项目的目标是实现EF和Dapper的无缝切换, 而不需要做任何改动。
+微软实现了 EF 的 Identity, 在某些场景下, EF 不能够满足业务需求, 因此使用纯 SQL 会是一个不错的选择。此项目的目标是实现 EF 和 Dapper的无缝切换, 而不需要做任何改动。
 
 #### 运行项目的方法
 
 - 安装 SqlExpress
 - 设置 AspNetCore.Identity.Dapper.Samples.Web 为启动项目
-- 在Startup中删除AddEntityFrameworkStores的注释后, 注释AddDapperStores
+- 在 Startup.cs 中删除 AddEntityFrameworkStores 的注释后, 注释 AddDapperStores
 - 在 Package Mananger Console中运行 update-database
-- 在Startup中注释AddEntityFrameworkStores, 删除AddDapperStores的注释
+- 在 Startup.cs 中注释 AddEntityFrameworkStores, 删除 AddDapperStores 的注释
 - 运行项目
 
 #### 运行测试项目的
 
 - 执行"运行项目方法"的前4步
 - 运行测试用例
+
+#### 扩展至其它数据库的方法
+
+- 实现 IStoreProvider 用于创建 DbConnection, 参考 https://github.com/dotnet-china/AspNetCore.Identity.Dapper/blob/master/src/AspNetCore.Identity.Dapper/SqlServerProvider.cs
+- 继承实现 SqlConfiguration 用于提供对应的SQL语句, 如: MySqlSqlConfiguraiton
 
 #### 注意与建议
 
