@@ -1,4 +1,4 @@
-### AspNetCore.Identity.Dapper
+### AspNetCore.Identity.Dapper　　　　　　　　　　　　　　　　　　[English](README.en-us.md)
 
 微软实现了 EF 的 ASP.NET Identity providers, 在某些特定场景下, 需要使用纯 SQL 替代 EF, 此项目的目标就是实现 EF providers 和 Dapper providers 的无缝切换, 而不需要做太大的改动。
 
