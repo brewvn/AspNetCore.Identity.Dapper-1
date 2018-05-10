@@ -9,6 +9,16 @@
 - 在 Package Mananger Console 中运行 update-database
 - 运行项目
 
+#### 使用方法
+
+			services.AddIdentity<ApplicationUser, IdentityRole>(x =>
+			{
+				x.Password.RequireUppercase = false;
+				x.Password.RequireNonAlphanumeric = false;
+			})
+			//.AddEntityFrameworkStores<ApplicationDbContext>()
+			.AddDapperStores(new SqlServerProvider(Configuration.GetConnectionString("DefaultConnection")))
+
 #### 运行测试项目的
 
 - 执行"运行项目方法"的前3步

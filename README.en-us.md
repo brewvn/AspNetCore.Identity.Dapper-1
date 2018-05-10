@@ -1,6 +1,6 @@
 ### AspNetCore.Identity.Dapper　　　　　　　　　　　　　　　　　　[嶄猟](README.md)
 
-There is an official identity provider used by EF from Microsfot, but some reasons we want to query sql directly instead of EF. This project is used to change ORM from EF to Dapper with a little impact.
+There is an official identity provider used by EF from Microsoft, but some reasons we want to query sql directly instead of EF. This project is used to change ORM from EF to Dapper with a little impact.
 
 #### How to run the sample
 
@@ -8,6 +8,17 @@ There is an official identity provider used by EF from Microsfot, but some reaso
 - Set AspNetCore.Identity.Dapper.Samples.Web as the startup project
 - Run command: update-database in Package Mananger Console
 - Press F5 to have fun
+
+#### How to use
+
+			services.AddIdentity<ApplicationUser, IdentityRole>(x =>
+			{
+				x.Password.RequireUppercase = false;
+				x.Password.RequireNonAlphanumeric = false;
+			})
+			//.AddEntityFrameworkStores<ApplicationDbContext>()
+			.AddDapperStores(new SqlServerProvider(Configuration.GetConnectionString("DefaultConnection")))
+
 
 #### How to run testcases
 
