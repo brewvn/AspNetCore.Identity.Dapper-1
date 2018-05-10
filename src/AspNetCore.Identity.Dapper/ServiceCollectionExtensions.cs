@@ -77,11 +77,11 @@ namespace AspNetCore.Identity.Dapper
 		private static TypeInfo FindGenericBaseType(Type currentType, Type genericBaseType)
 		{
 			TypeInfo typeInfo = currentType.GetTypeInfo();
-			while (typeInfo.BaseType != (Type)null)
+			while (typeInfo.BaseType != null)
 			{
 				typeInfo = typeInfo.BaseType.GetTypeInfo();
 				Type left = typeInfo.IsGenericType ? typeInfo.GetGenericTypeDefinition() : null;
-				if (left != (Type)null && left == genericBaseType)
+				if (left != null && left == genericBaseType)
 				{
 					return typeInfo;
 				}
